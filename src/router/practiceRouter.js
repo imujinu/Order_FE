@@ -8,6 +8,7 @@ import RouteComonent2 from "@/components/practice/5.RouteComonent2.vue";
 import RouteComonent3 from "@/components/practice/5.RouteComonent3.vue";
 
 export const practiceRouter = [
+  { path: "/", name: "TestVue", component: TestVue },
   { path: "/practice/test", name: "TestVue", component: TestVue },
   {
     path: "/practice/modeling",

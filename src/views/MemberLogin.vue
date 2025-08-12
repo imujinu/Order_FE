@@ -34,6 +34,7 @@
   </v-container>
 </template>
 <script>
+import { getErrorMessage, getResultData } from "@/utils/commonDataHandler";
 import axios from "axios";
 
 export default {
@@ -52,18 +53,19 @@ export default {
           password: this.password,
         };
         const response = await axios.post(
-          "http://localhost:8080/member/doLogin",
+          `${process.env.VUE_APP_API_BASE_URL}/member/doLogin`,
           data
         );
-        const accessToken = response.data.result.accessToken;
-        const refreshToken = response.data.result.refreshToken;
+        const result = getResultData(response);
+        const accessToken = result.accessToken;
+        const refreshToken = result.refreshToken;
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refreshToken", refreshToken);
         window.location.href = "/";
       } catch (e) {
         // 에러가 터지는 경우 e 변수 안에 서버에서 주는 error 메시지가 담김
         console.log(e);
-        alert(e.response.data.status_message);
+        alert(getErrorMessage(e));
       }
     },
   },

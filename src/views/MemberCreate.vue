@@ -59,10 +59,10 @@ export default {
           email: this.email,
         };
         const response = await axios.post(
-          "http://localhost:8080/member/create",
+          `${process.env.VUE_APP_API_BASE_URL}/member/create`,
           data
         );
-        
+
         console.log(response);
         this.$router.push("/");
       } catch (e) {
