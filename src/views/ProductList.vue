@@ -5,26 +5,40 @@
         <v-form>
           <v-row>
             <v-col cols="auto">
-              <v-select />
+              <v-select
+                v-model="searchType"
+                :items="searchOptions"
+                item-title="text"
+                item-value="value"
+              />
             </v-col>
             <v-col>
-              <v-text-field />
+              <v-text-field
+                v-model="searchValue"
+                label="검색"
+                @keyup.enter="searchProduct"
+              />
             </v-col>
             <v-col cols="auto">
-              <v-btn>검색</v-btn>
+              <v-btn @click="searchProduct()">검색</v-btn>
             </v-col>
           </v-row>
         </v-form>
       </v-col>
-      <v-col cols="auto">
-        <v-btn @click="addCart()">장바구니</v-btn>
-        <v-btn @click="createdOrder()">주문하기</v-btn>
+      <v-col cols="auto" v-if="!isAdmin">
+        <v-btn @click="addCart()" color="primary">장바구니</v-btn>
+        <v-btn @click="createdOrder()" color="secondary">주문하기</v-btn>
+      </v-col>
+      <v-col cols="auto" v-if="isAdmin">
+        <v-btn :to="'/product/create'" color="primary">상품등록</v-btn>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
         <v-card>
-          <v-card-title class="text-center text-h5"> 회원목록</v-card-title>
+          <v-card-title class="text-center text-h5">
+            {{ pageTitle }}</v-card-title
+          >
           <v-card-text>
             <v-table>
               <thead>
@@ -33,8 +47,9 @@
                   <th>제품명</th>
                   <th>가격</th>
                   <th>재고수량</th>
-                  <th>주문수량</th>
-                  <th>주문선택</th>
+                  <th v-if="!isAdmin">주문수량</th>
+                  <th v-if="!isAdmin">주문선택</th>
+                  <th v-if="isAdmin">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -42,10 +57,10 @@
                   <td>
                     <v-img :src="product.imagePath"></v-img>
                   </td>
-                  <td>{{ product.name }}</td>
+                  <td>{{ product.productName }}</td>
                   <td>{{ product.price }}</td>
                   <td>{{ product.stockQuantity }}</td>
-                  <td>
+                  <td v-if="!isAdmin">
                     <!-- input 박스는 화면에서 숫자처럼 보여도 실제 입력값은 문자열 -->
                     <v-text-field
                       v-model="product.productCount"
@@ -53,8 +68,11 @@
                       style="width: 65px"
                     />
                   </td>
-                  <td>
+                  <td v-if="!isAdmin">
                     <input type="checkbox" v-model="product.isSelected" />
+                  </td>
+                  <td v-if="isAdmin">
+                    <v-btn color="secondary">상품삭제</v-btn>
                   </td>
                 </tr>
               </tbody>
@@ -70,6 +88,7 @@ import { getErrorMessage } from "@/utils/commonDataHandler";
 import axios from "axios";
 
 export default {
+  props: ["isAdmin", "pageTitle"],
   data() {
     return {
       productList: [],
@@ -78,6 +97,13 @@ export default {
       currentPage: 0,
       isLoading: false,
       isLastPage: false,
+      searchType: "optional",
+      searchValue: "",
+      searchOptions: [
+        { text: "선택", value: "optional" },
+        { text: "상품명", value: "productName" },
+        { text: "카테고리", value: "category" },
+      ],
     };
   },
   async created() {
@@ -85,6 +111,13 @@ export default {
     window.addEventListener("scroll", this.scrollPaging);
   },
   methods: {
+    searchProduct() {
+      this.productList = [];
+      this.currentPage = 0;
+      this.isLastPage = false;
+      this.isLoading = false;
+      this.loadData();
+    },
     scrollPaging() {
       // 현재 화면 높이 + 스크롤로 이동한 거리 > 전체화면 높이 - n(내가 원하는 길이 ) 가 성립되면 추가 데이터 로드
       const isBottom =
@@ -102,6 +135,13 @@ export default {
         size: this.pageSize,
         page: this.currentPage,
       };
+      if (this.searchType == "productName") {
+        params.productName = this.searchValue;
+        console.log(params.productName);
+      }
+      if (this.searchType == "category") {
+        params.category = this.searchValue;
+      }
       const response = await axios.get(
         `${process.env.VUE_APP_API_BASE_URL}/product/list`,
         { params }
@@ -135,7 +175,7 @@ export default {
             this.order
           );
           alert("주문이 정상적으로 완료되었습니다.");
-          window.location.reload();
+          //   window.location.reload();
         }
       } catch (e) {
         getErrorMessage(e);
