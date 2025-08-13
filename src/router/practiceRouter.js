@@ -6,6 +6,7 @@ import HookComponent from "@/components/practice/3.HookComponent.vue";
 import RouteComonent from "@/components/practice/5.RouteComonent.vue";
 import RouteComonent2 from "@/components/practice/5.RouteComonent2.vue";
 import RouteComonent3 from "@/components/practice/5.RouteComonent3.vue";
+import StoreTestComponent from "@/components/practice/6.StoreTestComponent.vue";
 
 export const practiceRouter = [
   { path: "/practice/test", name: "TestVue", component: TestVue },
@@ -43,5 +44,10 @@ export const practiceRouter = [
     path: "/practice/route3/:postId",
     name: "RouteComponent3",
     component: RouteComonent3,
+  },
+  {
+    path: "/practice/store",
+    name: "StoreTestComponent",
+    component: StoreTestComponent,
   },
 ];

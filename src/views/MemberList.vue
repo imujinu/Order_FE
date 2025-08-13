@@ -41,6 +41,7 @@ export default {
       memberList: [],
     };
   },
+ 
   async created() {
     try {
       const accessToken = localStorage.getItem("accessToken");

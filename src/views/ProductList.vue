@@ -63,7 +63,7 @@
                   <td v-if="!isAdmin">
                     <!-- input 박스는 화면에서 숫자처럼 보여도 실제 입력값은 문자열 -->
                     <v-text-field
-                      v-model="product.productCount"
+                      v-model.number="product.productCount"
                       type="number"
                       style="width: 65px"
                     />
@@ -111,6 +111,17 @@ export default {
     window.addEventListener("scroll", this.scrollPaging);
   },
   methods: {
+    addCart() {
+      const orderProductList = this.productList
+        .filter((p) => p.isSelected)
+        .map((p) => ({
+          productId: p.id,
+          name: p.productName,
+          productCount: p.productCount,
+        }));
+
+      orderProductList.forEach((p) => this.$store.dispatch("addCart", p));
+    },
     searchProduct() {
       this.productList = [];
       this.currentPage = 0;
